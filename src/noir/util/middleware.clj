@@ -16,7 +16,17 @@
         [ring.middleware.resource :only [wrap-resource]]
         [ring.middleware.file-info :only [wrap-file-info]]
         [ring.middleware.multipart-params :only [wrap-multipart-params]])
-  (:require [clojure.string :as s]))
+  (:require [clojure.string :as s]
+            [noire.session :as session]))
+
+(defn csrf-protection-writer
+  "Adds CSRF token to header"
+  [handler]
+  (fn [req]
+    (-> (update-in (handler req)
+                   [:headers] 
+                   merge {"CSRF-token"
+                          (java.util.UUID/randomUUID)}))))
 
 (defn wrap-request-map [handler]
   (fn [req]
@@ -86,7 +96,8 @@
     (wrap-noir-cookies)
     (wrap-noir-flash)
     (wrap-noir-session 
-      {:store (or store (memory-store mem))})))
+      {:store (or store (memory-store mem))})
+    (csrf-pretection-writer)))
 
 (defn war-handler
   "wraps the app-handler in middleware needed for WAR deployment:
