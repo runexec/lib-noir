@@ -16,17 +16,30 @@
         [ring.middleware.resource :only [wrap-resource]]
         [ring.middleware.file-info :only [wrap-file-info]]
         [ring.middleware.multipart-params :only [wrap-multipart-params]])
-  (:require [clojure.string :as s]
-            [noire.session :as session]))
+  (:require [clojure.string :as s]))
+
 
 (defn csrf-protection-writer
-  "Adds CSRF token to header"
+  "Adds CSRF token to urls"
   [handler]
   (fn [req]
-    (-> (update-in (handler req)
-                   [:headers] 
-                   merge {"CSRF-token"
-                          (java.util.UUID/randomUUID)}))))
+    ;; Token needs to be set in the session
+    ;; and this middleware needs to read it
+    ;; before use.
+    ;;
+    ;; Using UUID as a test stub. I get
+    ;; get errors thrown when trying to do
+    ;; session actions wtihin the middleware
+    (let [token (java.util.UUID/randomUUID)]
+      (-> (update-in 
+           req
+           [:query-string]
+           (fn [x]
+             (if (or (nil? x)
+                     (empty? x))
+               (str "csrf=" token)
+               (str x "&csrf=" token))))
+          handler))))
 
 (defn wrap-request-map [handler]
   (fn [req]
