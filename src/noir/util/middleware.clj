@@ -17,8 +17,6 @@
         [ring.middleware.file-info :only [wrap-file-info]]
         [ring.middleware.multipart-params :only [wrap-multipart-params]])
   (:require [clojure.string :as s]))
-<<<<<<< HEAD
-
 
 (defn csrf-protection-writer
   "Adds CSRF token to urls"
@@ -32,7 +30,7 @@
     ;; get errors thrown when trying to do
     ;; session actions wtihin the middleware
     (let [token (java.util.UUID/randomUUID)]
-      (-> (update-in 
+      (-> (update-in
            req
            [:query-string]
            (fn [x]
@@ -41,8 +39,6 @@
                (str "csrf=" token)
                (str x "&csrf=" token))))
           handler))))
-=======
->>>>>>> parent of e11c7da... CSRF attack prevention middleware (partial)
 
 (defn wrap-request-map [handler]
   (fn [req]
@@ -112,7 +108,8 @@
     (wrap-noir-cookies)
     (wrap-noir-flash)
     (wrap-noir-session 
-      {:store (or store (memory-store mem))})))
+      {:store (or store (memory-store mem))})
+    (csrf-protection-writer)))
 
 (defn war-handler
   "wraps the app-handler in middleware needed for WAR deployment:
