@@ -17,6 +17,7 @@
         [ring.middleware.file-info :only [wrap-file-info]]
         [ring.middleware.multipart-params :only [wrap-multipart-params]])
   (:require [clojure.string :as s]))
+<<<<<<< HEAD
 
 
 (defn csrf-protection-writer
@@ -40,6 +41,8 @@
                (str "csrf=" token)
                (str x "&csrf=" token))))
           handler))))
+=======
+>>>>>>> parent of e11c7da... CSRF attack prevention middleware (partial)
 
 (defn wrap-request-map [handler]
   (fn [req]
@@ -109,8 +112,7 @@
     (wrap-noir-cookies)
     (wrap-noir-flash)
     (wrap-noir-session 
-      {:store (or store (memory-store mem))})
-    (csrf-pretection-writer)))
+      {:store (or store (memory-store mem))})))
 
 (defn war-handler
   "wraps the app-handler in middleware needed for WAR deployment:
